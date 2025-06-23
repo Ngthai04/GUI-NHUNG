@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Cảm ơn người bạn tốt</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .scene {
+      perspective: 1000px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .world {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      position: relative;
+      transition: transform 0.05s linear;
+    }
+
+    .text, .heart {
+      position: absolute;
+      white-space: nowrap;
+      transform-style: preserve-3d;
+      animation: fall 8s linear infinite;
+      will-change: transform, top;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 2s infinite ease-in-out;
+    }
+
+    @keyframes fall {
+      0% { top: -50px; }
+      100% { top: 110%; }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .heart {
+      color: #ff3333;
+      text-shadow: 0 0 5px #ff3333, 0 0 15px #ff3333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="world" id="world"></div>
+</div>
+
+<script>
+  const world = document.getElementById("world");
+
+  // Tạo sao nền
+  for (let i = 0; i < 150; i++) {
+    const star = document.createElement("div");
+    star.className = "star";
+    star.style.top = Math.random() * 100 + "%";
+    star.style.left = Math.random() * 100 + "%";
+    star.style.animationDuration = (1 + Math.random() * 3) + "s";
+    world.appendChild(star);
+  }
+
+  const messages = [
+    "CẢM ƠN NGUYỆN THỊ HỒNG NHUNG", "CẢM ƠN CÔ BÉ CÓ CÁI ĐẦU THÔNG MINH", "Cảm ơn vì đã là người bạn tốt của Thái ", "Chúc Nhun thi thật tốt nha!!!",
+    "Nhớ Đừng Quên Thái nha !!!", "Chúc Đậu Nguyện Vọng 1", "Vẫn là người bạn tốt",
+    "Bé Bự Tự Nhiên cảm ơn Bí SuShi"
+  ];
+
+  const colors = [
+    { color: "#ffff99", shadow: "#ffff99" }, // vàng nhạt
+    { color: "#ff66ff", shadow: "#ff66ff" }, // hồng
+  ];
+  let currentColorIndex = 0;
+
+  function createText(msg, delay = 0) {
+    const div = document.createElement("div");
+    div.className = "text";
+    div.textContent = msg;
+
+    const left = 10 + Math.random() * 80;
+    const depth = -500 + Math.random() * 1000;
+    const scale = 1 + (500 - Math.abs(depth)) / 1000;
+
+    div.style.left = left + "%";
+    div.style.fontSize = (1.0 * scale).toFixed(2) + "em";
+    div.style.animationDelay = delay + "s";
+    div.style.transform = `translateZ(${depth}px) scale(${scale})`;
+
+    applyColor(div);
+    world.appendChild(div);
+    setTimeout(() => div.remove(), 12000);
+  }
+
+  function createHeart(delay = 0) {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.textContent = "❤";
+
+    const left = 10 + Math.random() * 80;
+    const depth = -400 + Math.random() * 800;
+    const scale = 0.6 + (500 - Math.abs(depth)) / 1000;
+
+    heart.style.left = left + "%";
+    heart.style.animationDelay = delay + "s";
+    heart.style.fontSize = (1.2 * scale).toFixed(2) + "em";
+    heart.style.transform = `translateZ(${depth}px) scale(${scale})`;
+
+    world.appendChild(heart);
+    setTimeout(() => heart.remove(), 12000);
+  }
+
+  function applyColor(el) {
+    const c = colors[currentColorIndex];
+    el.style.color = c.color;
+    el.style.textShadow = `0 0 5px ${c.shadow}, 0 0 15px ${c.shadow}`;
+  }
+
+  function switchColor() {
+    currentColorIndex = (currentColorIndex + 1) % colors.length;
+  }
+
+  setInterval(switchColor, 30000); // 30 giây đổi màu
+
+  let index = 0;
+  const layers = 6;
+
+  setInterval(() => {
+    for (let i = 0; i < layers; i++) {
+      if (index >= messages.length) index = 0;
+      createText(messages[index++], i * 0.3);
+      if (Math.random() < 0.5) createHeart(i * 0.2);
+    }
+  }, 2000);
+
+  // Xoay 3D bằng chuột
+  let isDragging = false;
+  let lastX, lastY;
+  let rotX = 0, rotY = 0;
+
+  document.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+
+  document.addEventListener("mouseup", () => isDragging = false);
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    rotY += dx * 0.3;
+    rotX -= dy * 0.3;
+    world.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+</script>
+
+</body>
+</html>
